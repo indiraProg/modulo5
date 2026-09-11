@@ -1,122 +1,50 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useMemo, useState } from 'react'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { Badge, Button, Chip, Drawer, IconButton, InputAdornment, Snackbar, TextField } from '@mui/material'
+import { ArrowRight, CakeSlice, ChevronDown, Clock3, Heart, MapPin, Menu, Minus, Plus, Search, ShoppingBag, Sparkles, Star, Store, X } from 'lucide-react'
 import './App.css'
 
+const theme = createTheme({
+  palette: { primary: { main: '#164221' }, secondary: { main: '#b08736' } },
+  typography: { fontFamily: 'Inter, sans-serif' },
+  shape: { borderRadius: 10 },
+})
+
+const products = [
+  { id: 1, category: 'Torta de Autor', name: 'Tarta Pacay & Chocolate Criollo', description: 'Mousse de cacao silvestre con ganache de pacay andino y crujiente de almendras.', price: 45, badge: "Chef's choice", image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=85' },
+  { id: 2, category: 'Caja Degustacion', name: 'Macaron Imperial Cochabambino', description: 'Seis macarons con ganaches de lucuma, maracuya de los Yungas y vainilla.', price: 60, badge: 'Exclusivo', image: 'https://images.unsplash.com/photo-1558326567-98ae2405596b?auto=format&fit=crop&w=900&q=85' },
+  { id: 3, category: 'Reposteria Fresca', name: 'Cheesecake de Frambuesas & Rosa', description: 'Textura aterciopelada sobre sablee de nueces del valle y coulis de rosa.', price: 42, badge: 'Gourmet', image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=900&q=85' },
+  { id: 4, category: 'Tradicion Francesa', name: 'Milhojas de Vainilla Bourbon', description: 'Hojaldre caramelizado, crema diplomata y dulce de leche de la casa.', price: 38, badge: 'Clasico', image: 'https://images.unsplash.com/photo-1614707267537-2b1e6e4a8a06?auto=format&fit=crop&w=900&q=85' },
+]
+const categories = ['Todos', 'Tortas', 'Macarons', 'Tartas', 'Regalos']
+
+function Logo() {
+  return <div className="flex items-center gap-2"><span className="grid h-8 w-8 place-items-center rounded-full bg-[#164221] text-[#f7d98b]"><CakeSlice size={16} /></span><div className="leading-none"><strong className="font-display text-lg text-[#164221]">Anima Dulce</strong><span className="mt-1 block text-[8px] font-semibold tracking-[.2em] text-[#b08736]">HAUTE PATISSERIE · COCHABAMBA</span></div></div>
+}
+
+function Header({ onCart, count, onCatalog }) {
+  return <><div className="bg-[#164221] px-4 py-1.5 text-center text-[10px] font-semibold tracking-wide text-white">Horneado fresco cada manana en Cochabamba · Delivery a toda la ciudad</div><header className="sticky top-0 z-30 border-b border-[#eadfd1] bg-[#fef8f4]/95 px-4 py-4 backdrop-blur md:px-8"><div className="mx-auto flex max-w-7xl items-center justify-between gap-4"><Logo /><nav className="hidden items-center gap-8 text-sm text-[#414941] md:flex"><button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-[#164221]">Inicio</button><button onClick={onCatalog} className="hover:text-[#164221]">Catalogo & Ordenes</button><button onClick={() => document.getElementById('sucursales').scrollIntoView({ behavior: 'smooth' })} className="hover:text-[#164221]">Sucursales & Contacto</button></nav><div className="flex items-center gap-2"><Chip label="Cala Cala · El Prado" size="small" sx={{ display: { xs: 'none', sm: 'flex' }, bgcolor: '#f3ede9', color: '#775a19', fontSize: 10 }} /><IconButton aria-label="Buscar" sx={{ color: '#414941' }}><Search size={18} /></IconButton><IconButton aria-label="Abrir carrito" onClick={onCart} sx={{ color: '#164221' }}><Badge badgeContent={count} color="secondary"><ShoppingBag size={19} /></Badge></IconButton><IconButton className="md:hidden" aria-label="Menu"><Menu size={19} /></IconButton></div></div></header></>
+}
+
+function ProductCard({ product, onAdd }) {
+  return <article className="product-card flex flex-col justify-between rounded-2xl border border-[#eee4d9] bg-white p-3 shadow-card transition-shadow hover:shadow-warm"><div><div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-xl bg-[#f3ede9]"><img className="product-image h-full w-full object-cover" src={product.image} alt={product.name} /><span className="absolute left-3 top-3 rounded-full bg-[#b08736] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white">{product.badge}</span><span className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[9px] font-semibold text-[#164221]"><span className="h-1.5 w-1.5 rounded-full bg-[#2e7d41]" />Disponible hoy</span></div><div className="flex items-center justify-between"><span className="text-[10px] font-bold uppercase tracking-widest text-[#b08736]">{product.category}</span><span className="flex items-center gap-1 text-xs text-[#775a19]"><Star size={12} fill="currentColor" /> 4.9</span></div><h3 className="font-display mt-2 text-xl leading-tight text-[#164221]">{product.name}</h3><p className="mt-2 text-xs leading-relaxed text-[#727970]">{product.description}</p></div><div className="mt-5 flex items-center justify-between border-t border-[#f3ede9] pt-3"><div><span className="block text-[9px] uppercase tracking-wider text-[#727970]">Porcion individual</span><strong className="text-lg text-[#775a19]">Bs. {product.price}</strong></div><Button onClick={() => onAdd(product)} variant="contained" size="small" startIcon={<Plus size={14} />} sx={{ borderRadius: 99, bgcolor: '#164221', textTransform: 'none', fontWeight: 700, '&:hover': { bgcolor: '#2e5a36' } }}>Anadir</Button></div></article>
+}
+
+function CartDrawer({ open, onClose, cart, onChange }) {
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  return <Drawer anchor="right" open={open} onClose={onClose}><div className="flex h-full w-[min(410px,100vw)] flex-col bg-[#fef8f4] p-5"><div className="flex items-center justify-between border-b border-[#eadfd1] pb-4"><div><p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#b08736]">Tu seleccion</p><h2 className="font-display text-2xl text-[#164221]">Pedido Gourmet</h2></div><IconButton onClick={onClose} aria-label="Cerrar carrito"><X size={19} /></IconButton></div>{cart.length === 0 ? <div className="flex flex-1 flex-col items-center justify-center text-center"><ShoppingBag className="mb-4 text-[#b08736]" size={34} /><h3 className="font-display text-xl text-[#164221]">Tu mesa esta esperando</h3><p className="mt-2 max-w-xs text-sm text-[#727970]">Agrega una creacion de nuestra vitrina para comenzar.</p></div> : <div className="flex-1 space-y-3 overflow-y-auto py-5">{cart.map(item => <div key={item.id} className="flex gap-3 rounded-xl bg-white p-3"><img src={item.image} alt="" className="h-16 w-16 rounded-lg object-cover" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-[#164221]">{item.name}</p><p className="text-xs text-[#b08736]">Bs. {item.price}</p><div className="mt-2 flex items-center gap-2"><IconButton aria-label="Disminuir" size="small" onClick={() => onChange(item.id, -1)}><Minus size={13} /></IconButton><span className="text-sm font-semibold">{item.quantity}</span><IconButton aria-label="Aumentar" size="small" onClick={() => onChange(item.id, 1)}><Plus size={13} /></IconButton></div></div></div>)}</div>}<div className="border-t border-[#eadfd1] pt-5"><div className="mb-4 flex items-center justify-between"><span className="text-sm text-[#727970]">Total estimado</span><strong className="text-xl text-[#164221]">Bs. {total}</strong></div><Button fullWidth variant="contained" disabled={!cart.length} endIcon={<ArrowRight size={16} />} sx={{ borderRadius: 99, bgcolor: '#164221', py: 1.4, textTransform: 'none', fontWeight: 700 }}>Continuar pedido</Button><p className="mt-3 text-center text-[10px] text-[#727970]">Pago seguro · QR Simple · Tarjeta · Efectivo</p></div></div></Drawer>
+}
+
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+  const [category, setCategory] = useState('Todos')
+  const [query, setQuery] = useState('')
+  const [cart, setCart] = useState([])
+  const [drawer, setDrawer] = useState(false)
+  const [toast, setToast] = useState('')
+  const visibleProducts = useMemo(() => products.filter(p => (category === 'Todos' || p.category.toLowerCase().includes(category.toLowerCase().replace('tortas', 'torta').replace('regalos', 'caja'))) && p.name.toLowerCase().includes(query.toLowerCase())), [category, query])
+  const addToCart = product => { setCart(items => { const current = items.find(item => item.id === product.id); return current ? items.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item) : [...items, { ...product, quantity: 1 }] }); setToast(`${product.name} anadido a tu pedido`) }
+  const changeQuantity = (id, delta) => setCart(items => items.map(item => item.id === id ? { ...item, quantity: item.quantity + delta } : item).filter(item => item.quantity > 0))
+  return <ThemeProvider theme={theme}><div className="min-h-screen bg-[#fef8f4]"><Header onCart={() => setDrawer(true)} count={cart.reduce((sum, item) => sum + item.quantity, 0)} onCatalog={() => document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth' })} /><main><section className="grain relative overflow-hidden"><div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-14 md:grid-cols-12 md:px-8 md:py-24"><div className="md:col-span-7"><span className="inline-flex items-center gap-2 rounded-full bg-[#f3ede9] px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#775a19]"><Sparkles size={12} /> Alta reposteria de origen cochabambino</span><h1 className="font-display mt-6 max-w-2xl text-5xl leading-[.98] text-[#164221] md:text-7xl">El Arte del Sabor <em className="font-normal text-[#b08736]">Sublime</em> en Cochabamba</h1><p className="mt-6 max-w-xl text-base leading-relaxed text-[#414941]">Postres de autor elaborados con chocolate boliviano de origen, pacay silvestre, frutos frescos del valle y la mas refinada tecnica francesa contemporanea.</p><div className="mt-8 flex flex-wrap gap-3"><Button onClick={() => document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth' })} variant="contained" endIcon={<ArrowRight size={16} />} sx={{ borderRadius: 99, bgcolor: '#164221', px: 3, py: 1.4, textTransform: 'none', fontWeight: 700 }}>Explorar catalogo</Button><Button startIcon={<Heart size={16} />} sx={{ borderRadius: 99, color: '#775a19', bgcolor: '#f3ede9', px: 2.5, textTransform: 'none' }}>Nuestra historia</Button></div><div className="mt-10 grid max-w-xl grid-cols-3 gap-2">{[['100%', 'Artesanal'], ['2', 'Boutiques'], ['100%', 'Origen puro']].map(([value, label]) => <div key={label} className="rounded-xl bg-white/80 p-3"><strong className="block text-sm text-[#164221]">{value}</strong><span className="text-[9px] text-[#727970]">{label}</span></div>)}</div></div><div className="relative md:col-span-5"><div className="absolute -inset-5 rounded-[32px] bg-[#dbe8d7] blur-2xl" /><div className="relative rounded-3xl bg-white p-3 shadow-warm"><div className="relative aspect-[4/5] overflow-hidden rounded-2xl"><img className="h-full w-full object-cover" src="https://images.unsplash.com/photo-1571115177098-24ec42ed204d?auto=format&fit=crop&w=1000&q=85" alt="Tarta de celebracion decorada con frutas" /><span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[#164221]">Pieza insignia 2025</span><div className="absolute bottom-4 left-4 right-4 flex items-end justify-between rounded-xl bg-white/95 p-3"><div><span className="block text-[9px] uppercase tracking-widest text-[#b08736]">Tarta festiva de gala</span><strong className="font-display text-base text-[#164221]">Oro & Pacay Silvestre</strong></div><strong className="text-sm text-[#775a19]">Bs. 320</strong></div></div></div></div></div></section><section id="catalogo" className="mx-auto max-w-7xl px-5 py-16 md:px-8"><div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#b08736]">Seleccion del maestro pastelero</span><h2 className="font-display mt-2 text-4xl text-[#164221] md:text-5xl">Creaciones emblematicas</h2><p className="mt-3 max-w-xl text-sm text-[#727970]">Elige algo especial para hoy. Horneamos por tandas pequenas para cuidar cada detalle.</p></div><div className="flex items-center gap-2 rounded-xl bg-[#f3ede9] px-3 py-2 text-xs text-[#164221]"><Store size={15} /> Cala Cala <ChevronDown size={14} /></div></div><div className="mt-8 rounded-2xl border border-[#eee4d9] bg-white p-3 shadow-card"><TextField fullWidth size="small" placeholder="Buscar tortas, macarons, bocaditos gourmet..." value={query} onChange={e => setQuery(e.target.value)} InputProps={{ startAdornment: <InputAdornment position="start"><Search size={17} /></InputAdornment> }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} /><div className="mt-3 flex gap-2 overflow-x-auto pb-1">{categories.map(item => <Chip key={item} label={item === 'Todos' ? 'Todos los postres' : item} onClick={() => setCategory(item)} color={category === item ? 'primary' : 'default'} sx={{ flexShrink: 0, fontWeight: 600, bgcolor: category === item ? undefined : '#f9f2ef' }} />)}</div></div><div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{visibleProducts.map(product => <ProductCard key={product.id} product={product} onAdd={addToCart} />)}</div>{!visibleProducts.length && <p className="py-16 text-center text-sm text-[#727970]">No encontramos creaciones con ese criterio.</p>}</section><section id="sucursales" className="bg-[#f3ede9] px-5 py-16 md:px-8"><div className="mx-auto max-w-7xl"><div className="flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#b08736]">Nuestros espacios en Cochabamba</span><h2 className="font-display mt-2 text-4xl text-[#164221]">Dos boutiques para compartir</h2></div><p className="max-w-sm text-sm text-[#727970]">Visitanos para una pausa dulce, un regalo o una celebracion hecha a tu medida.</p></div><div className="mt-8 grid gap-5 md:grid-cols-2">{[['Boutique Cala Cala', 'Av. America Oeste #420', 'Martes a domingo · 09:00 - 21:00'], ['Cafe Bistro El Prado', 'Av. Ballivian #680', 'Lunes a sabado · 08:30 - 22:00']].map(([name, address, hours]) => <div key={name} className="rounded-2xl bg-white p-5 shadow-card"><div className="flex items-start justify-between"><div><h3 className="font-display text-2xl text-[#164221]">{name}</h3><p className="mt-2 flex items-center gap-2 text-sm text-[#727970]"><MapPin size={14} className="text-[#b08736]" />{address}</p></div><span className="rounded-full bg-[#edf3eb] px-2 py-1 text-[9px] font-bold text-[#164221]">Abierto hoy</span></div><div className="mt-5 flex items-center gap-2 border-t border-[#f3ede9] pt-4 text-xs text-[#727970]"><Clock3 size={14} className="text-[#b08736]" />{hours}</div></div>)}</div></div></section></main><footer className="bg-[#164221] px-5 py-10 text-white md:px-8"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 md:flex-row md:items-end"><div><Logo /><p className="mt-4 max-w-sm text-xs leading-relaxed text-[#c8d9c7]">Pasteleria de autor con raices bolivianas, hecha para convertir momentos cotidianos en recuerdos sublimes.</p></div><div className="text-xs text-[#c8d9c7]"><p className="font-semibold text-white">Contacto & pedidos</p><p className="mt-2">+591 71234567 · pedidos@animadulce.bo</p></div></div><div className="mx-auto mt-8 max-w-7xl border-t border-white/15 pt-4 text-[10px] text-[#c8d9c7]">© 2025 Anima Dulce · Reposteria fina boliviana</div></footer></div><CartDrawer open={drawer} onClose={() => setDrawer(false)} cart={cart} onChange={changeQuantity} /><Snackbar open={Boolean(toast)} autoHideDuration={2400} onClose={() => setToast('')} message={toast} /></ThemeProvider>
 }
 
 export default App
