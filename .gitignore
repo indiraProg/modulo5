@@ -12,9 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Local hidden files and directories (keep this ignore file versioned)
+.*
+!.gitignore
+
 # Editor directories and files
 .vscode/*
-!.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
